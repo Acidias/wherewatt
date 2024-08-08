@@ -30,6 +30,7 @@ app.use('/api/publicchargers', publicChargersRoutes);
 
 // Define a test route
 app.get('/', (req, res) => {
+    console.log("API is running");
     res.send('EV Charger App API is running');
 });
 
