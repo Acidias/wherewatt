@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Miscellaneous
+*.env
+.env.*
+.env.local
+
+# React Native / Expo
+.expo/
+.expo-shared/
+*.expo/
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+build/
