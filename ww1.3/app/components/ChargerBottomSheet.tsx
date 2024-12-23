@@ -2,10 +2,18 @@ import React from "react";
 import { useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import BottomSheet, { BottomSheetBackdrop } from "@gorhom/bottom-sheet";
+import { useNavigation } from '@react-navigation/native';
+import { Linking } from 'react-native';
+
+
 import tw from "twrnc"; // Optional for Tailwind CSS styles
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import type { StackNavigationProp } from '@react-navigation/stack';
+import type { HomeStackParamList } from '../navigator/HomeNavigator';
 
 import chargerBg from "../assets/chargerBg.png";
+
+type NavigationProp = StackNavigationProp<HomeStackParamList, 'BookingScreen'>;
 
 type ChargerBottomSheetProps = {
   charger: any;
@@ -15,10 +23,41 @@ type ChargerBottomSheetProps = {
 
 const ChargerBottomSheet = React.forwardRef<BottomSheet, ChargerBottomSheetProps>(({ charger, onClose }, ref) => {
   const [isLiked, setIsLiked] = useState(false);
-
+  const navigation = useNavigation<NavigationProp>();
   const toggleLike = () => {
     setIsLiked(!isLiked);
   };
+
+  const handleDirections = () => {
+    const address = `${charger.AddressInfo.AddressLine1}, ${charger.AddressInfo.Town}, ${charger.AddressInfo.StateOrProvince}, ${charger.AddressInfo.Postcode}`;
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+    
+    Linking.openURL(url).catch(err => console.error('Failed to open Google Maps', err));
+  };
+  
+  const handleBooking = () => {
+    navigation.navigate('BookingScreen', { charger });
+  };
+
+
+  let button = (
+    <TouchableOpacity style={styles.bookButton} onPress={handleDirections}>
+      <Text style={styles.bookButtonText}>Direction</Text>
+    </TouchableOpacity>
+  );
+  if (charger.StatusType?.IsOperational) {
+    button = (
+      <TouchableOpacity style={styles.bookButton} onPress={handleDirections}>
+        <Text style={styles.bookButtonText}>Direction</Text>
+      </TouchableOpacity>
+    );
+  } else {
+    button = (
+      <TouchableOpacity style={styles.bookButton} onPress={handleBooking}>
+        <Text style={styles.bookButtonText}>Book a slot</Text>
+      </TouchableOpacity>
+    );
+  }
 
 
   const renderBackdrop = React.useCallback(
@@ -44,7 +83,7 @@ const ChargerBottomSheet = React.forwardRef<BottomSheet, ChargerBottomSheetProps
       <View style={styles.contentContainer}>
         <View style={styles.imageContainer}>
         <View style={styles.priceBadgeContainer}>
-          <Text style={styles.priceBadgeText}>💰 {charger?.UsageCost || "$??"} / kWh</Text>
+          <Text style={styles.priceBadgeText}>💰 {"$"  +charger?.UsageCost|| "$??"} / kWh</Text>
         </View>
           <Image
             source={charger?.imageUri ? { uri: charger.imageUri } : chargerBg}
@@ -71,9 +110,7 @@ const ChargerBottomSheet = React.forwardRef<BottomSheet, ChargerBottomSheetProps
             <Text style={styles.infoText}>{charger?.AddressInfo?.AccessComments || "Working hours not available"}</Text>
           </View>
 
-          <TouchableOpacity style={styles.bookButton} onPress={() => {}}>
-            <Text style={styles.bookButtonText}>Book a slot</Text>
-          </TouchableOpacity>
+          {button}
         </View>
       </View>
     </BottomSheet>

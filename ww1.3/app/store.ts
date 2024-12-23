@@ -5,6 +5,8 @@ import navReducer from "./slices/navSlice";
 import favoritesReducer from "./slices/favoritesSlice";
 import jobReducer from "./slices/jobSlice";
 import publicChargersSlice from "./slices/publicChargersSlice";
+import privateChargersSlice from "./slices/privateChargersSlice";
+
 
 
 export const store = configureStore({
@@ -13,6 +15,7 @@ export const store = configureStore({
     favorites: favoritesReducer,
     job: jobReducer,
     publicChargers: publicChargersSlice,
+    privateChargers: privateChargersSlice,
   },
 });
 

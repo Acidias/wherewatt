@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // Base API URL
-const url = "http://10.27.102.85:3010";
+const url = "http://10.32.75.56:3010";
 
 // Async thunk to fetch chargers from MongoDB
 export const fetchPublicChargers = createAsyncThunk(

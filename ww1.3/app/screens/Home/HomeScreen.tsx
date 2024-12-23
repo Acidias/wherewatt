@@ -1,15 +1,17 @@
 import React, { useEffect, useState, useRef } from "react";
-import { SafeAreaView, StyleSheet, Alert } from "react-native";
+import { SafeAreaView, StyleSheet, Alert, View } from "react-native";
 import * as Location from "expo-location";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setOrigin } from "../../slices/navSlice";
 import MapView, { Marker } from "react-native-maps";
 import tw from "twrnc";
 import { Charger } from "../../types/types";
-import { useAppDispatch } from "../../store";
+import { useAppDispatch, RootState } from "../../store";
 import { fetchPublicChargers } from "../../slices/publicChargersSlice";
 import ChargerBottomSheet from "../../components/ChargerBottomSheet";
 import BottomSheet from "@gorhom/bottom-sheet";
+
+import PrivateEVChargerIcon from "../../assets/privCharger";
 
 import chargingStationAvailableImage from '../../assets/charging_station_available.png';
 import chargingStationUnavailableImage from "../../assets/charging_station_faulted.png";
@@ -26,6 +28,8 @@ const HomeScreen = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const [publicCharger, setPublicCharger] = useState<Charger[]>([]);
+
+  const privateChargers = useSelector((state: RootState) => state.privateChargers.chargers);
 
   useEffect(() => {
     const fetchChargers = async () => {
@@ -92,7 +96,7 @@ const HomeScreen = () => {
     startWatchingLocation();
 
     return () => {
-      if (locationSubscription) {
+      if (locationSubscription && typeof locationSubscription.remove === 'function') {
         locationSubscription.remove();
       }
     };
@@ -105,7 +109,7 @@ const HomeScreen = () => {
   //   }
   // }, [selectedCharger]);
 
-  const handleMarkerPress = (charger: Charger) => {
+  const handleMarkerPress = (charger: any) => {
     // console.log("Marker pressed", charger);
     setSelectedCharger(charger);
     bottomSheetRef.current?.expand();
@@ -131,7 +135,6 @@ const HomeScreen = () => {
           />
           {publicCharger &&
             publicCharger.map((charger) => {
-              // Choose the correct image based on the charger's operational status
               const chargerImage = charger.StatusType?.IsOperational
                 ? chargingStationAvailableImage
                 : chargingStationUnavailableImage;
@@ -143,12 +146,31 @@ const HomeScreen = () => {
                     latitude: charger.AddressInfo.Latitude,
                     longitude: charger.AddressInfo.Longitude,
                   }}
-                  image={chargerImage} // Use the selected image
+                  image={chargerImage}
                   onPress={() => handleMarkerPress(charger)}
                 />
               );
             })}
+          {privateChargers &&
+            privateChargers.map((charger) => {
+              return (
+                <Marker
+                  key={charger.id}
+                  coordinate={{
+                    latitude: charger.location.latitude,
+                    longitude: charger.location.longitude,
+                  }}
+                  title={charger.homeOwnerName}
+                  image={chargingStationAvailableImage}
+                  // description={`$${charger.UsageCost} per hour`}
+                  onPress={() => handleMarkerPress(charger)}
+                >
+
+                </Marker>
+              );
+            })}
         </MapView>
+
       ) : null}
       {selectedCharger && (
         <ChargerBottomSheet

@@ -16,7 +16,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
      const [user, setUser] = useState<UserType | null>(null);
     //  const url = 'http://localhost:3010';
-     const url = "http://10.27.102.85:3010";
+     const url = "http://10.32.75.56:3010";
 
      console.log('URL: ', url);
 
